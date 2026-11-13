@@ -13,5 +13,14 @@
          xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 https://pmd.sourceforge.io/ruleset_2_0_0.xsd">
     <description>PMD quickstart, with Project Pulse's decisions.</description>
     <rule ref="rulesets/java/quickstart.xml">
+        <!-- D4 (2026-11-13): GuardLogStatement is off. Project Pulse logs through SLF4J with {}
+             placeholders (Logger.info("Sent {} of {}", a, b)), never by string concatenation, so the
+             message is only formatted after SLF4J's own level check; a guard repeats that check.
+             The arguments in all four 2026-11-01 findings (ReminderService, WeeklyReminderScheduler,
+             DocumentTemplateRegistry, AuthController) are field getters or size() calls, which
+             cost nothing worth guarding, and three of them log at info or error, which are on in
+             production anyway. If a log call ever needs an expensive argument, guard that call by
+             hand; the rule cannot tell an expensive argument from a getter. -->
+        <exclude name="GuardLogStatement"/>
     </rule>
 </ruleset>
