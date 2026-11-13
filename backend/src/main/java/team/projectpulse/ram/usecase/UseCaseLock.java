@@ -40,10 +40,8 @@ public class UseCaseLock {
         if (lockedAt == null) {
             return false;
         }
-        if (expiresAt == null) {
-            return true;
-        }
-        return expiresAt.isAfter(now);
+        // A null expiresAt is a manual lock, which never expires.
+        return expiresAt == null || expiresAt.isAfter(now);
     }
 
     public boolean isExpired(Instant now) {
