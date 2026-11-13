@@ -30,10 +30,8 @@ public class UseCaseController {
     @GetMapping("/teams/{teamId}/use-cases/{useCaseId}")
     public Result findUseCaseById(@PathVariable Integer teamId, @PathVariable Long useCaseId) {
         UseCase useCase = this.useCaseService.findUseCaseByIdWithFullGraph(teamId, useCaseId);
-        /**
-         * At this point, the use case entity graph is fully loaded in the persistence context
-         * The converter will NOT trigger any lazy loading, this is important for performance
-         */
+        // At this point, the use case entity graph is fully loaded in the persistence context.
+        // The converter will NOT trigger any lazy loading; this is important for performance.
         UseCaseDto useCaseDto = this.useCaseToUseCaseDtoConverter.convert(useCase);
         return new Result(true, StatusCode.SUCCESS, "Find use case successfully", useCaseDto);
     }
