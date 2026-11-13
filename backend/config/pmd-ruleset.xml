@@ -22,5 +22,14 @@
              production anyway. If a log call ever needs an expensive argument, guard that call by
              hand; the rule cannot tell an expensive argument from a getter. -->
         <exclude name="GuardLogStatement"/>
+        <!-- D2 (2026-11-13): UnnecessaryConstructor is off; its partner UncommentedEmptyConstructor stays
+             on. All 10 findings on 2026-11-01 were the explicit no-arg constructor of a JPA entity (or
+             of a class EvaluationService builds empty and fills by setters) whose only constructor it
+             is. Deleting it compiles today, but the first convenience constructor someone adds then
+             removes the implicit default one, and Hibernate fails at runtime, not at compile time. The
+             explicit constructor is the guard, so we keep it and make it say why: every empty
+             constructor carries a comment naming the framework that needs it, which
+             UncommentedEmptyConstructor enforces. -->
+        <exclude name="UnnecessaryConstructor"/>
     </rule>
 </ruleset>
