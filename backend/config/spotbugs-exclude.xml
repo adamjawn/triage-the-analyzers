@@ -7,4 +7,23 @@
 
      Unlike the baseline, this file may grow, but every entry is a reviewed decision. -->
 <FindBugsFilter>
+    <!-- D1 (2026-11-13): EI_EXPOSE_REP and EI_EXPOSE_REP2 are off project-wide. On 2026-11-01 the
+         219 findings fell into three groups, and in none of them is a defensive copy correct:
+         - 158 are JPA entities (Course.getSections(), UseCase.getLock(), ...). A getter must hand back
+           the managed association: Hibernate tracks changes to that exact collection, orphanRemoval
+           deletes what is removed from it, and services such as UseCaseService.updateUseCase mutate it
+           in place. A copy would silently drop those writes.
+         - 27 are Spring beans injected through a constructor (a controller holding its service). The
+           bean is a shared singleton by design; sharing it is the point of injection.
+         - 34 are DTO records and response classes holding Lists. Converters build them and Jackson
+           serializes them within one request; nothing keeps a reference to mutate later.
+         The remaining handful are the same shape: report holders built per request
+         (PeerEvaluationAverage, WeeklyPeerEvaluationReport, ReminderService.ReminderResult), the
+         security principal wrapping its user entity (MyUserPrincipal), and DocumentTemplate, whose
+         sections are loaded once at startup and only read.
+         Check: grep the 2026-11-01 spotbugs-baseline.xml (git show c1d9be9:backend/config/spotbugs-baseline.xml)
+         for EI_EXPOSE and look at each Class. -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
+    </Match>
 </FindBugsFilter>
