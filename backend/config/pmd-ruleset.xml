@@ -13,5 +13,23 @@
          xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 https://pmd.sourceforge.io/ruleset_2_0_0.xsd">
     <description>PMD quickstart, with Project Pulse's decisions.</description>
     <rule ref="rulesets/java/quickstart.xml">
+        <!-- D4 (2026-11-13): GuardLogStatement is off. Project Pulse logs through SLF4J with {}
+             placeholders (Logger.info("Sent {} of {}", a, b)), never by string concatenation, so the
+             message is only formatted after SLF4J's own level check; a guard repeats that check.
+             The arguments in all four 2026-11-01 findings (ReminderService, WeeklyReminderScheduler,
+             DocumentTemplateRegistry, AuthController) are field getters or size() calls, which
+             cost nothing worth guarding, and three of them log at info or error, which are on in
+             production anyway. If a log call ever needs an expensive argument, guard that call by
+             hand; the rule cannot tell an expensive argument from a getter. -->
+        <exclude name="GuardLogStatement"/>
+        <!-- D2 (2026-11-13): UnnecessaryConstructor is off; its partner UncommentedEmptyConstructor stays
+             on. All 10 findings on 2026-11-01 were the explicit no-arg constructor of a JPA entity (or
+             of a class EvaluationService builds empty and fills by setters) whose only constructor it
+             is. Deleting it compiles today, but the first convenience constructor someone adds then
+             removes the implicit default one, and Hibernate fails at runtime, not at compile time. The
+             explicit constructor is the guard, so we keep it and make it say why: every empty
+             constructor carries a comment naming the framework that needs it, which
+             UncommentedEmptyConstructor enforces. -->
+        <exclude name="UnnecessaryConstructor"/>
     </rule>
 </ruleset>

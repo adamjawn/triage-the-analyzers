@@ -16,6 +16,7 @@ public class Result {
 
 
     public Result() {
+        // Required by Jackson, which deserializes this class through its no-arg constructor.
     }
 
     public Result(boolean flag, Integer code, String message) {
